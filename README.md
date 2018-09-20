@@ -24,5 +24,6 @@ Now if you run it when you have a cluster configured it will dump the following 
 * statefulset
 
 ## Notes
+* Ingresses are exported in a seperate loop WITHOUT --export to preserve the ip they are currently using
 * You must have kubectl installed
 * I highly recommend using [kubectx](https://github.com/ahmetb/kubectx) to switch between projects easily
