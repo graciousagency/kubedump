@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-sh connect.sh
 for TYPE in limitranges persistentvolumeclaims persistentvolumes configmap services deployments statefulset horizontalpodautoscalers cronjob
 do
     echo "Grabbing $TYPE"
