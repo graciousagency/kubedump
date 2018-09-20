@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+sh connect.sh
+for TYPE in limitranges persistentvolumeclaims persistentvolumes configmap services deployments statefulset horizontalpodautoscalers cronjob
+do
+    echo "Grabbing $TYPE"
+    mkdir -p $TYPE
+    for ENTITY in $(kubectl get $TYPE| grep -v NAME| awk '{print $1}')
+    do 
+        kubectl get $TYPE $ENTITY -o yaml --export > $TYPE/$ENTITY.yaml
+    done
+done
+
+for TYPE in ingresses
+do
+    echo "Grabbing $TYPE without --export"
+    mkdir -p $TYPE
+    for ENTITY in $(kubectl get $TYPE| grep -v NAME| awk '{print $1}')
+    do 
+        kubectl get $TYPE $ENTITY -o yaml > $TYPE/$ENTITY.yaml
+    done
+done
+
+echo "Secrets were NOT dumped"
