@@ -1,22 +1,37 @@
 #!/usr/bin/env bash
-for TYPE in limitranges persistentvolumeclaims persistentvolumes configmap services deployments statefulset horizontalpodautoscalers cronjob
+for NS in $(kubectl get ns|grep -Ev 'NAME|kube'|awk '{print $1}')
 do
-    echo "Grabbing $TYPE"
-    mkdir -p $TYPE
-    for ENTITY in $(kubectl get $TYPE| grep -v NAME| awk '{print $1}')
-    do 
-        kubectl get $TYPE $ENTITY -o yaml --export > $TYPE/$ENTITY.yaml
+    for TYPE in certificates limitranges persistentvolumeclaims persistentvolumes configmap services deployments statefulset horizontalpodautoscalers cronjob
+    do
+        echo "Grabbing $NS $TYPE"
+        mkdir -p $NS/$TYPE
+        for ENTITY in $(kubectl -n $NS get $TYPE| grep -v NAME| awk '{print $1}')
+        do 
+            kubectl -n $NS get $TYPE $ENTITY -o yaml --export > $NS/$TYPE/$ENTITY.yaml
+        done
+    done
+#     for TYPE in secrets
+#     do
+#         echo "Grabbing $NS $TYPE"
+#         mkdir -p $NS/$TYPE
+#         for ENTITY in $(kubectl -n $NS get $TYPE| grep -Ev 'NAME|service-account-token'| awk '{print $1}')
+#         do 
+#             kubectl -n $NS get $TYPE $ENTITY -o yaml --export > $NS/$TYPE/$ENTITY.yaml
+#         done
+#     done
+    for TYPE in ingresses
+    do
+        echo "Grabbing $NS $TYPE without --export"
+        mkdir -p $NS/$TYPE
+        for ENTITY in $(kubectl -n $NS get $TYPE| grep -v NAME| awk '{print $1}')
+        do 
+            kubectl -n $NS get $TYPE $ENTITY -o yaml > $NS/$TYPE/$ENTITY.yaml
+        done
     done
 done
 
-for TYPE in ingresses
-do
-    echo "Grabbing $TYPE without --export"
-    mkdir -p $TYPE
-    for ENTITY in $(kubectl get $TYPE| grep -v NAME| awk '{print $1}')
-    do 
-        kubectl get $TYPE $ENTITY -o yaml > $TYPE/$ENTITY.yaml
-    done
-done
-
-echo "Secrets were NOT dumped"
+# for EMPTY in $(find . -type d -empty -print)
+# do
+#     echo "Deleting empty director $EMPTY" 
+#     rm -rf $EMPTY
+# done
